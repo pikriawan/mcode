@@ -209,11 +209,11 @@ export default function File({
 }) {
   const [path, setPath] = useState(originalPath)
   const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
-  const [isDeleted, setIsDeleted] = useState(false)
+  const [deleted, setDeleted] = useState(false)
   const { setDrawerOpen } = useAppBar()
   const { openFiles, setOpenFiles } = useEditor()
 
-  return isDeleted ? undefined : (
+  return deleted && (
     <FileContext.Provider value={{
       path,
       setPath,

@@ -405,7 +405,7 @@ export default function Folder({
   const [open, setOpen] = useState(false)
   const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
   const [children, setChildren] = useState([])
-  const [isDeleted, setIsDeleted] = useState(false)
+  const [deleted, setDeleted] = useState(false)
   const { cutParent, setCutParent } = useFileManager()
 
   const loadChildren = useCallback(async () => {
@@ -424,7 +424,7 @@ export default function Folder({
     }
   }, [cutParent])
 
-  return isDeleted ? undefined : (
+  return deleted && (
     <FolderContext.Provider value={{
       path,
       setPath,
