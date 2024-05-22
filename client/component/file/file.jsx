@@ -159,18 +159,19 @@ function RenameDialog({ onClose, open }) {
 }
 
 function DeleteDialog({ onClose, open }) {
-  const { path, setDeleted } = useContext(FileContext)
+  const { path } = useContext(FileContext)
+  const { deletedItemParent, setDeletedItemParent } = useFileManager()
 
   const handleDelete = useCallback(async (event) => {
     event.preventDefault()
 
     try {
       await fs.rm(path)
-      setDeleted(true)
+      setDeletedItemParent(getParentPath(path))
     } catch (error) {
       console.error(error)
     }
-  }, [path])
+  }, [path, deletedItemParent])
 
   return (
     <Dialog
@@ -209,16 +210,11 @@ export default function File({
 }) {
   const [path, setPath] = useState(originalPath)
   const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
-  const [deleted, setDeleted] = useState(false)
   const { setDrawerOpen } = useAppBar()
   const { openFiles, setOpenFiles } = useEditor()
 
-  return !deleted && (
-    <FileContext.Provider value={{
-      path,
-      setPath,
-      setDeleted
-    }}>
+  return (
+    <FileContext.Provider value={{ path, setPath }}>
       <Box sx={{
         display: 'flex'
       }}>

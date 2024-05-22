@@ -24,7 +24,8 @@ export default function FileManager() {
   const [base, setBase] = useState(savedBase)
   const [baseExists, setBaseExists] = useState()
   const [float, setFloat] = useState()
-  const [cutParent, setCutParent] = useState()
+  const [cutItemParent, setCutItemParent] = useState()
+  const [deletedItemParent, setDeletedItemParent] = useState()
   const [dialogOpen, setDialogOpen] = useState(false)
 
   async function handleOpenFolder(event) {
@@ -78,8 +79,10 @@ export default function FileManager() {
           setBase,
           float,
           setFloat,
-          cutParent,
-          setCutParent
+          cutItemParent,
+          setCutItemParent,
+          deletedItemParent,
+          setDeletedItemParent
         }}>
           <Folder path={base} />
         </FileManagerContext.Provider>

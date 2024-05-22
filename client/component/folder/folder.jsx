@@ -43,7 +43,7 @@ function OptionsDialog({ onClose, open }) {
     setBase,
     float,
     setFloat,
-    setCutParent
+    setCutItemParent
   } = useFileManager()
   const [folderNewDialogOpen, setFolderNewDialogOpen] = useState(false)
   const [fileNewDialogOpen, setFileNewDialogOpen] = useState(false)
@@ -85,35 +85,39 @@ function OptionsDialog({ onClose, open }) {
               New File
             </Button>
             <Button onClick={() => {
-              setFloat({
-                type: 'copy',
-                path
-              })
-              onClose()
-            }}>
-              Copy
-            </Button>
-            <Button onClick={() => {
-              setFloat({
-                type: 'cut',
-                path
-              })
-              onClose()
-            }}>
-              Cut
-            </Button>
-            <Button onClick={() => {
               setRenameDialogOpen(true)
               onClose()
             }}>
               Rename
             </Button>
-            <Button onClick={() => {
-              setDeleteDialogOpen(true)
-              onClose()
-            }}>
-              Delete
-            </Button>
+            {base !== path && (
+              <>
+                <Button onClick={() => {
+                  setFloat({
+                    type: 'copy',
+                    path
+                  })
+                  onClose()
+                }}>
+                  Copy
+                </Button>
+                <Button onClick={() => {
+                  setFloat({
+                    type: 'cut',
+                    path
+                  })
+                  onClose()
+                }}>
+                  Cut
+                </Button>
+                <Button onClick={() => {
+                  setDeleteDialogOpen(true)
+                  onClose()
+                }}>
+                  Delete
+                </Button>
+              </>
+            )}
             {float ? (
               <>
                 <Button onClick={async () => {
@@ -122,7 +126,7 @@ function OptionsDialog({ onClose, open }) {
                       await fs.cp(float.path, `${path}/${getName(float.path)}`)
                     } else {
                       await fs.rename(float.path, `${path}/${getName(float.path)}`)
-                      setCutParent(getParentPath(float.path))
+                      setCutItemParent(getParentPath(float.path))
                     }
 
                     await loadChildren()
@@ -353,18 +357,19 @@ function RenameDialog({ onClose, open }) {
 }
 
 function DeleteDialog({ onClose, open }) {
-  const { path, setDeleted } = useContext(FolderContext)
+  const { path } = useContext(FolderContext)
+  const { deletedItemParent, setDeletedItemParent } = useFileManager()
 
   const handleDelete = useCallback(async (event) => {
     event.preventDefault()
 
     try {
       await fs.rm(path)
-      setDeleted(true)
+      setDeletedItemParent(getParentPath(path))
     } catch (error) {
       console.error(error)
     }
-  }, [path])
+  }, [path, deletedItemParent])
 
   return (
     <Dialog
@@ -405,8 +410,8 @@ export default function Folder({
   const [open, setOpen] = useState(false)
   const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
   const [children, setChildren] = useState([])
-  const [deleted, setDeleted] = useState(false)
-  const { cutParent, setCutParent } = useFileManager()
+  const { cutItemParent, setCutItemParent } = useFileManager()
+  const { deletedItemParent, setDeletedItemParent } = useFileManager()
 
   const loadChildren = useCallback(async () => {
     try {
@@ -418,18 +423,24 @@ export default function Folder({
   }, [path])
 
   useEffect(() => {
-    if (cutParent === path) {
-      setCutParent(null)
+    if (cutItemParent === path) {
+      setCutItemParent(null)
       loadChildren()
     }
-  }, [cutParent])
+  }, [path, cutItemParent])
 
-  return !deleted && (
+  useEffect(() => {
+    if (deletedItemParent === path) {
+      setDeletedItemParent(null)
+      loadChildren()
+    }
+  }, [path, deletedItemParent])
+
+  return (
     <FolderContext.Provider value={{
       path,
       setPath,
       open,
-      setDeleted,
       loadChildren
     }}>
       <Accordion
