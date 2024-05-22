@@ -1,4 +1,8 @@
-export { default as AppBar } from './app-bar'
+export {
+  default as AppBar,
+  AppBarContext,
+  useAppBar
+} from './app-bar'
 export {
   default as Editor,
   EditorContext,

@@ -8,7 +8,7 @@ import {
   TextField,
   Typography
 } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Folder } from '..'
 import * as fs from '../../fs'
 import FileManagerContext from './file-manager-context'
@@ -22,6 +22,7 @@ const savedBase = localStorage.getItem('base')
 
 export default function FileManager() {
   const [base, setBase] = useState(savedBase)
+  const [baseExists, setBaseExists] = useState()
   const [float, setFloat] = useState()
   const [cutParent, setCutParent] = useState()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -36,18 +37,41 @@ export default function FileManager() {
 
       if (type === DirentType.DIRECTORY) {
         setBase(baseFolderPath)
-        localStorage.setItem('base', baseFolderPath)
       } else {
         throw Error
       }
     } catch (error) {
-      alert('error')
+      alert(error)
     }
 
     setDialogOpen(false)
   }
 
-  return base
+  useEffect(() => {
+    async function checkBaseExists() {
+      if (base && baseExists === undefined) {
+        try {
+          await fs.stat(base)
+          setBaseExists(true)
+        } catch {
+          setBase(null)
+          setBaseExists(false)
+        }
+      }
+    }
+
+    checkBaseExists()
+  }, [base, baseExists])
+
+  useEffect(() => {
+    if (base && baseExists !== undefined) {
+      localStorage.setItem('base', base)
+    } else {
+      localStorage.removeItem('base')
+    }
+  }, [base, baseExists])
+
+  return base && baseExists !== undefined
     ? (
         <FileManagerContext.Provider value={{
           base,
@@ -75,51 +99,32 @@ export default function FileManager() {
             open={dialogOpen}
             sx={{
               '& .MuiDialog-paper': {
-                backgroundColor: 'pallete.background.default',
                 backgroundImage: 'none'
               }
             }}
           >
             <form onSubmit={handleOpenFolder}>
-              <DialogContent sx={{
-                padding: '1.5rem 1.5rem 0.75rem 1.5rem'
-              }}>
+              <DialogTitle>
+                Open folder
+              </DialogTitle>
+              <DialogContent>
                 <TextField
                   autoComplete='off'
-                  label='Base path'
                   name='baseFolderPath'
                   required
                   type='text'
-                  variant='standard'
+                  variant='outlined'
                 />
               </DialogContent>
-              <DialogActions sx={{
-                gap: '1.5rem',
-                justifyContent: 'stretch',
-                padding: '0.75rem 1.5rem 1.5rem 1.5rem',
-                '& > :not(style) ~ :not(style)': {
-                  marginLeft: 0
-                }
-              }}>
+              <DialogActions>
                 <Button
                   onClick={() => setDialogOpen(false)}
-                  sx={{
-                    border: 0,
-                    borderRadius: '0.5rem',
-                    fontSize: '1rem',
-                    padding: '0.5rem 1rem',
-                    textTransform: 'none',
-                    width: '100%'
-                  }}
                   variant='outlined'
                 >
                   Cancel
                 </Button>
                 <Button
                   disableElevation
-                  sx={{
-                    width: '100%'
-                  }}
                   type='submit'
                   variant='contained'
                 >Open</Button>

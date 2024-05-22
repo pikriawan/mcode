@@ -8,12 +8,13 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 import { FileManager } from '..'
+import AppBarContext from './app-bar-context'
 
 export default function AppBar() {
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   return (
-    <>
+    <AppBarContext.Provider value={{ drawerOpen, setDrawerOpen }}>
       <MuiAppBar sx={{
         backgroundImage: 'none',
         boxShadow: 'none'
@@ -47,6 +48,6 @@ export default function AppBar() {
           <FileManager />
         </Box>
       </Drawer>
-    </>
+    </AppBarContext.Provider>
   )
 }

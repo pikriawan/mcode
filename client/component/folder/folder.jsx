@@ -8,8 +8,12 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Button,
   ButtonBase,
+  ButtonGroup,
   Dialog,
+  DialogActions,
+  DialogContent,
   DialogTitle,
   Divider,
   TextField,
@@ -49,120 +53,111 @@ function OptionsDialog({ onClose, open }) {
 
   return (
     <>
-      <Dialog onClose={onClose} open={open}>
+      <Dialog
+        onClose={onClose}
+        open={open}
+        sx={{
+          '& .MuiDialog-paper': {
+            backgroundImage: 'none'
+          }
+        }}
+      >
         <DialogTitle>
           {getName(path)}
         </DialogTitle>
-        <ButtonBase onClick={() => {
-          setFolderNewDialogOpen(true)
-          onClose()
-        }}>
-          <Typography>
-            New Folder
-          </Typography>
-        </ButtonBase>
-        <Divider />
-        <ButtonBase onClick={() => {
-          setFileNewDialogOpen(true)
-          onClose()
-        }}>
-          <Typography>
-            New File
-          </Typography>
-        </ButtonBase>
-        <Divider />
-        <ButtonBase onClick={() => {
-          setFloat({
-            type: 'copy',
-            path
-          })
-          onClose()
-        }}>
-          <Typography>
-            Copy
-          </Typography>
-        </ButtonBase>
-        <Divider />
-        <ButtonBase onClick={() => {
-          setFloat({
-            type: 'cut',
-            path
-          })
-          onClose()
-        }}>
-          <Typography>
-            Cut
-          </Typography>
-        </ButtonBase>
-        <Divider />
-        <ButtonBase onClick={() => {
-          setRenameDialogOpen(true)
-          onClose()
-        }}>
-          <Typography>
-            Rename
-          </Typography>
-        </ButtonBase>
-        <Divider />
-        <ButtonBase onClick={() => {
-          setDeleteDialogOpen(true)
-          onClose()
-        }}>
-          <Typography>
-            Delete
-          </Typography>
-        </ButtonBase>
-        {float ? (
-          <>
-            <Divider />
-            <ButtonBase onClick={async () => {
-              try {
-                if (float.type === 'copy') {
-                  await fs.cp(float.path, `${path}/${getName(float.path)}`)
-                } else {
-                  await fs.rename(float.path, `${path}/${getName(float.path)}`)
-                  setCutParent(getParentPath(float.path))
-                }
-
-                await loadChildren()
-                setFloat(null)
-                onClose()
-              } catch (error) {
-                console.error(error)
-              }
+        <DialogContent>
+          <ButtonGroup
+            orientation='vertical'
+            variant='text'
+            sx={{
+              width: '100%'
+            }}
+          >
+            <Button onClick={() => {
+              setFolderNewDialogOpen(true)
+              onClose()
             }}>
-              <Typography>
-                Paste
-              </Typography>
-            </ButtonBase>
-            {path === float.path ? (
+              New Folder
+            </Button>
+            <Button onClick={() => {
+              setFileNewDialogOpen(true)
+              onClose()
+            }}>
+              New File
+            </Button>
+            <Button onClick={() => {
+              setFloat({
+                type: 'copy',
+                path
+              })
+              onClose()
+            }}>
+              Copy
+            </Button>
+            <Button onClick={() => {
+              setFloat({
+                type: 'cut',
+                path
+              })
+              onClose()
+            }}>
+              Cut
+            </Button>
+            <Button onClick={() => {
+              setRenameDialogOpen(true)
+              onClose()
+            }}>
+              Rename
+            </Button>
+            <Button onClick={() => {
+              setDeleteDialogOpen(true)
+              onClose()
+            }}>
+              Delete
+            </Button>
+            {float ? (
               <>
-                <Divider />
-                <ButtonBase onClick={() => {
-                  setFloat(null)
-                  onClose()
+                <Button onClick={async () => {
+                  try {
+                    if (float.type === 'copy') {
+                      await fs.cp(float.path, `${path}/${getName(float.path)}`)
+                    } else {
+                      await fs.rename(float.path, `${path}/${getName(float.path)}`)
+                      setCutParent(getParentPath(float.path))
+                    }
+
+                    await loadChildren()
+                    setFloat(null)
+                    onClose()
+                  } catch (error) {
+                    console.error(error)
+                  }
                 }}>
-                  <Typography>
-                    Cancel {float.type}
-                  </Typography>
-                </ButtonBase>
+                  Paste
+                </Button>
+                {path === float.path ? (
+                  <>
+                    <Button onClick={() => {
+                      setFloat(null)
+                      onClose()
+                    }}>
+                      Cancel {float.type}
+                    </Button>
+                  </>
+                ) : undefined}
               </>
             ) : undefined}
-          </>
-        ) : undefined}
-        {base === path ? (
-          <>
-            <Divider />
-            <ButtonBase onClick={() => {
-              localStorage.removeItem('base')
-              setBase(null)
-            }}>
-              <Typography>
-                Close
-              </Typography>
-            </ButtonBase>
-          </>
-        ) : undefined}
+            {base === path ? (
+              <>
+                <Button onClick={() => {
+                  setBase(null)
+                }}>
+                  Close
+                </Button>
+              </>
+            ) : undefined}
+          </ButtonGroup>
+        </DialogContent>
       </Dialog>
       <FolderNewDialog open={folderNewDialogOpen} onClose={() => setFolderNewDialogOpen(false)} />
       <FileNewDialog open={fileNewDialogOpen} onClose={() => setFileNewDialogOpen(false)} />
@@ -201,15 +196,34 @@ function FolderNewDialog({ onClose, open }) {
   }, [path, folderOpen])
 
   return (
-    <Dialog onClose={onClose} open={open}>
+    <Dialog
+      onClose={onClose}
+      open={open}
+      sx={{
+        '& .MuiDialog-paper': {
+          backgroundImage: 'none'
+        }
+      }}
+    >
       <form onSubmit={handleFolderNew}>
-        <TextField
-          autoComplete='off'
-          label='New folder'
-          name='name'
-          variant='outlined'
-        />
-        <ButtonBase type='submit'>New</ButtonBase>
+        <DialogTitle>
+          New folder
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoComplete='off'
+            name='name'
+            variant='outlined'
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => onClose()} variant='outlined'>
+            Cancel
+          </Button>
+          <Button type='submit' variant='contained'>
+            Create
+          </Button>
+        </DialogActions>
       </form>
     </Dialog>
   )
@@ -244,15 +258,34 @@ function FileNewDialog({ onClose, open }) {
   }, [path, folderOpen])
 
   return (
-    <Dialog onClose={onClose} open={open}>
+    <Dialog
+      onClose={onClose}
+      open={open}
+      sx={{
+        '& .MuiDialog-paper': {
+          backgroundImage: 'none'
+        }
+      }}
+    >
       <form onSubmit={handleFileNew}>
-        <TextField
-          autoComplete='off'
-          label='New file'
-          name='name'
-          variant='outlined'
-        />
-        <ButtonBase type='submit'>New</ButtonBase>
+        <DialogTitle>
+          New file
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoComplete='off'
+            name='name'
+            variant='outlined'
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => onClose()} variant='outlined'>
+            Cancel
+          </Button>
+          <Button type='submit' variant='contained'>
+            Create
+          </Button>
+        </DialogActions>
       </form>
     </Dialog>
   )
@@ -260,6 +293,7 @@ function FileNewDialog({ onClose, open }) {
 
 function RenameDialog({ onClose, open }) {
   const { path, setPath } = useContext(FolderContext)
+  const { base, setBase } = useFileManager()
 
   const handleRename = useCallback(async (event) => {
     event.preventDefault()
@@ -269,6 +303,11 @@ function RenameDialog({ onClose, open }) {
       const name = formData.get('name')
       const newPath = `${getParentPath(path)}/${name}`
       await fs.rename(path, newPath)
+
+      if (base === path) {
+        setBase(newPath)
+      }
+
       setPath(newPath)
 
       if (onClose) {
@@ -277,19 +316,38 @@ function RenameDialog({ onClose, open }) {
     } catch (error) {
       console.error(error)
     }
-  }, [path])
+  }, [path, base])
 
   return (
-    <Dialog onClose={onClose} open={open}>
+    <Dialog
+      onClose={onClose}
+      open={open}
+      sx={{
+        '& .MuiDialog-paper': {
+          backgroundImage: 'none'
+        }
+      }}
+    >
       <form onSubmit={handleRename}>
-        <TextField
-          autoComplete='off'
-          defaultValue={getName(path)}
-          label='New name'
-          name='name'
-          variant='outlined'
-        />
-        <ButtonBase type='submit'>Rename</ButtonBase>
+        <DialogTitle>
+          Rename
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoComplete='off'
+            defaultValue={getName(path)}
+            name='name'
+            variant='outlined'
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => onClose()} variant='outlined'>
+            Cancel
+          </Button>
+          <Button type='submit' variant='contained'>
+            Save
+          </Button>
+        </DialogActions>
       </form>
     </Dialog>
   )
@@ -310,9 +368,32 @@ function DeleteDialog({ onClose, open }) {
   }, [path])
 
   return (
-    <Dialog onClose={onClose} open={open}>
+    <Dialog
+      onClose={onClose}
+      open={open}
+      sx={{
+        '& .MuiDialog-paper': {
+          backgroundImage: 'none'
+        }
+      }}
+    >
       <form onSubmit={handleDelete}>
-        <ButtonBase type='submit'>Yes</ButtonBase>
+        <DialogTitle>
+          Delete
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Delete folder?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => onClose()} variant='outlined'>
+            Cancel
+          </Button>
+          <Button type='submit' variant='contained'>
+            Delete
+          </Button>
+        </DialogActions>
       </form>
     </Dialog>
   )
