@@ -353,14 +353,14 @@ function RenameDialog({ onClose, open }) {
 }
 
 function DeleteDialog({ onClose, open }) {
-  const { path, setIsDeleted } = useContext(FolderContext)
+  const { path, setDeleted } = useContext(FolderContext)
 
   const handleDelete = useCallback(async (event) => {
     event.preventDefault()
 
     try {
       await fs.rm(path)
-      setIsDeleted(true)
+      setDeleted(true)
     } catch (error) {
       console.error(error)
     }
@@ -424,12 +424,12 @@ export default function Folder({
     }
   }, [cutParent])
 
-  return deleted && (
+  return !deleted && (
     <FolderContext.Provider value={{
       path,
       setPath,
       open,
-      setIsDeleted,
+      setDeleted,
       loadChildren
     }}>
       <Accordion

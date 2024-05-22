@@ -159,14 +159,14 @@ function RenameDialog({ onClose, open }) {
 }
 
 function DeleteDialog({ onClose, open }) {
-  const { path, setIsDeleted } = useContext(FileContext)
+  const { path, setDeleted } = useContext(FileContext)
 
   const handleDelete = useCallback(async (event) => {
     event.preventDefault()
 
     try {
       await fs.rm(path)
-      setIsDeleted(true)
+      setDeleted(true)
     } catch (error) {
       console.error(error)
     }
@@ -213,11 +213,11 @@ export default function File({
   const { setDrawerOpen } = useAppBar()
   const { openFiles, setOpenFiles } = useEditor()
 
-  return deleted && (
+  return !deleted && (
     <FileContext.Provider value={{
       path,
       setPath,
-      setIsDeleted
+      setDeleted
     }}>
       <Box sx={{
         display: 'flex'
