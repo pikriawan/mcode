@@ -4,14 +4,17 @@ import {
   Box,
   Drawer,
   IconButton,
-  Toolbar
+  Toolbar,
+  useMediaQuery
 } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import { useState } from 'react'
 import { FileManager } from '..'
 import AppBarContext from './app-bar-context'
 
 export default function AppBar() {
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const theme = useTheme()
 
   return (
     <AppBarContext.Provider value={{ drawerOpen, setDrawerOpen }}>
@@ -36,7 +39,9 @@ export default function AppBar() {
           '& .MuiDrawer-paper': {
             backgroundImage: 'none',
             boxShadow: 'none',
-            width: 0.75
+            width: useMediaQuery(theme.breakpoints.up('sm'))
+              ? '20rem'
+              : 0.75
           }
         }}
       >
