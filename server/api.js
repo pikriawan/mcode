@@ -167,9 +167,49 @@ api.post('/mkdir', (req, res) => {
   }
 })
 
+api.post('/touch/*', (req, res) => {
+  const path = `/${req.params['0']}`
+
+  try {
+    fs.writeFileSync(path, '')
+    res.json({
+      status: ResponseStatus.SUCCESS,
+      error: null,
+      data: null
+    })
+  } catch (error) {
+    if (
+      error.code === ErrorCode.EACCES ||
+      error.code === ErrorCode.EISDIR ||
+      error.code === ErrorCode.EROFS
+    ) {
+      res.status(400)
+    } else if (error.code === ErrorCode.ENOENT) {
+      res.status(404)
+    } else {
+      res.status(500)
+    }
+
+    res.json({
+      status: ResponseStatus.ERROR,
+      error,
+      data: null
+    })
+  }
+})
+
 api.put('/writefile/*', (req, res) => {
   const path = `/${req.params['0']}`
   const { data } = req.body
+
+  if (!fs.existsSync(path)) {
+    res.status(400).json({
+      status: ResponseStatus.ERROR,
+      error: 'file doesn\'t exist',
+      data: null
+    })
+    return
+  }
 
   try {
     fs.writeFileSync(path, data || '')

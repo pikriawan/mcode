@@ -271,7 +271,7 @@ function FileNewDialog({ onClose, open }) {
       const formData = new FormData(event.target)
       const name = formData.get('name')
       const newFilePath = `${path}/${name}`
-      await fs.writeFile(newFilePath, '')
+      await fs.touch(newFilePath)
 
       if (folderOpen) {
         loadChildren()

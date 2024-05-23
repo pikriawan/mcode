@@ -65,6 +65,19 @@ export async function mkdir(path) {
   throw error
 }
 
+export async function touch(path) {
+  const response = await fetch(`/api/touch${path}`, {
+    method: 'POST'
+  })
+  const { status, error } = await response.json()
+
+  if (status === ResponseStatus.SUCCESS) {
+    return
+  }
+
+  throw error
+}
+
 export async function writeFile(path, data) {
   const response = await fetch(`/api/writefile${path}`, {
     method: 'PUT',

@@ -59,7 +59,10 @@ export default function App() {
         }} />
         <EditorProvider>
           <AppBar />
-          <main>
+          <main style={{
+            height: 'calc(100% - 3.5rem)',
+            width: '100%'
+          }}>
             <Editor />
           </main>
         </EditorProvider>
