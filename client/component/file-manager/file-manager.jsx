@@ -10,6 +10,7 @@ import {
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Folder } from '..'
+import { useApp } from '../../app'
 import * as fs from '../../fs'
 import FileManagerContext from './file-manager-context'
 
@@ -27,6 +28,11 @@ export default function FileManager() {
   const [cutItemParent, setCutItemParent] = useState()
   const [deletedItemParent, setDeletedItemParent] = useState()
   const [dialogOpen, setDialogOpen] = useState(false)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
 
   async function handleOpenFolder(event) {
     event.preventDefault()
@@ -39,10 +45,12 @@ export default function FileManager() {
       if (type === DirentType.DIRECTORY) {
         setBase(baseFolderPath)
       } else {
-        throw Error
+        throw new Error('it is a file')
       }
     } catch (error) {
-      alert(error)
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
     }
 
     setDialogOpen(false)
@@ -72,68 +80,66 @@ export default function FileManager() {
     }
   }, [base, baseExists])
 
-  return base && baseExists !== undefined
-    ? (
-        <FileManagerContext.Provider value={{
-          base,
-          setBase,
-          float,
-          setFloat,
-          cutItemParent,
-          setCutItemParent,
-          deletedItemParent,
-          setDeletedItemParent
-        }}>
-          <Folder path={base} />
-        </FileManagerContext.Provider>
-      )
-    : (
-        <>
-          <ButtonBase onClick={() => setDialogOpen(true)} sx={{
-            height: '100%',
-            width: '100%'
-          }}>
-            <Typography>
-              Open folder
-            </Typography>
-          </ButtonBase>
-          <Dialog
-            onClose={() => setDialogOpen(false)}
-            open={dialogOpen}
-            sx={{
-              '& .MuiDialog-paper': {
-                backgroundImage: 'none'
-              }
-            }}
-          >
-            <form onSubmit={handleOpenFolder}>
-              <DialogTitle>
-                Open folder
-              </DialogTitle>
-              <DialogContent>
-                <TextField
-                  autoComplete='off'
-                  name='baseFolderPath'
-                  required
-                  type='text'
-                  variant='outlined'
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button
-                  onClick={() => setDialogOpen(false)}
-                  variant='outlined'
-                >
-                  Cancel
-                </Button>
-                <Button
-                  disableElevation
-                  type='submit'
-                  variant='contained'
-                >Open</Button>
-              </DialogActions>
-            </form>
-          </Dialog>
-        </>
-      )
+  return base && baseExists !== undefined ? (
+    <FileManagerContext.Provider value={{
+      base,
+      setBase,
+      float,
+      setFloat,
+      cutItemParent,
+      setCutItemParent,
+      deletedItemParent,
+      setDeletedItemParent,
+    }}>
+      <Folder path={base} />
+    </FileManagerContext.Provider>
+  ) : (
+    <>
+      <ButtonBase onClick={() => setDialogOpen(true)} sx={{
+        height: '100%',
+        width: '100%'
+      }}>
+        <Typography>
+          Open folder
+        </Typography>
+      </ButtonBase>
+      <Dialog
+        onClose={() => setDialogOpen(false)}
+        open={dialogOpen}
+        sx={{
+          '& .MuiDialog-paper': {
+            backgroundImage: 'none'
+          }
+        }}
+      >
+        <form onSubmit={handleOpenFolder}>
+          <DialogTitle>
+            Open folder
+          </DialogTitle>
+          <DialogContent>
+            <TextField
+              autoComplete='off'
+              name='baseFolderPath'
+              required
+              type='text'
+              variant='outlined'
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setDialogOpen(false)}
+              variant='outlined'
+            >
+              Cancel
+            </Button>
+            <Button
+              disableElevation
+              type='submit'
+              variant='contained'
+            >Open</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </>
+  )
 }

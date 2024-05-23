@@ -22,16 +22,17 @@ import {
   useEditor,
   useFileManager
 } from '..'
+import { useApp } from '../../app'
 import * as fs from '../../fs'
 import { getName, getParentPath } from '../../util'
 
 const FileContext = createContext()
 
 function OptionsDialog({ onClose, open }) {
-  const { path } = useContext(FileContext)
-  const { float, setFloat } = useFileManager()
   const [renameDialogOpen, setRenameDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const { path } = useContext(FileContext)
+  const { float, setFloat } = useFileManager()
 
   return (
     <>
@@ -104,6 +105,11 @@ function OptionsDialog({ onClose, open }) {
 
 function RenameDialog({ onClose, open }) {
   const { path, setPath } = useContext(FileContext)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
 
   const handleRename = useCallback(async (event) => {
     event.preventDefault()
@@ -114,12 +120,14 @@ function RenameDialog({ onClose, open }) {
       const newPath = `${getParentPath(path)}/${name}`
       await fs.rename(path, newPath)
       setPath(newPath)
-
+    } catch (error) {
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
+    } finally {
       if (onClose) {
         onClose()
       }
-    } catch (error) {
-      console.error(error)
     }
   }, [path])
 
@@ -160,6 +168,11 @@ function RenameDialog({ onClose, open }) {
 
 function DeleteDialog({ onClose, open }) {
   const { path } = useContext(FileContext)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
   const { deletedItemParent, setDeletedItemParent } = useFileManager()
 
   const handleDelete = useCallback(async (event) => {
@@ -169,7 +182,9 @@ function DeleteDialog({ onClose, open }) {
       await fs.rm(path)
       setDeletedItemParent(getParentPath(path))
     } catch (error) {
-      console.error(error)
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
     }
   }, [path, deletedItemParent])
 

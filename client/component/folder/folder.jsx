@@ -26,6 +26,7 @@ import React, {
   useState
 } from 'react'
 import { File, useFileManager } from '..'
+import { useApp } from '../../app'
 import * as fs from '../../fs'
 import { getName, getParentPath } from '../../util'
 
@@ -37,7 +38,16 @@ const DirentType = {
 const FolderContext = createContext()
 
 function OptionsDialog({ onClose, open }) {
+  const [folderNewDialogOpen, setFolderNewDialogOpen] = useState(false)
+  const [fileNewDialogOpen, setFileNewDialogOpen] = useState(false)
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const { path, loadChildren } = useContext(FolderContext)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
   const {
     base,
     setBase,
@@ -45,10 +55,6 @@ function OptionsDialog({ onClose, open }) {
     setFloat,
     setCutItemParent
   } = useFileManager()
-  const [folderNewDialogOpen, setFolderNewDialogOpen] = useState(false)
-  const [fileNewDialogOpen, setFileNewDialogOpen] = useState(false)
-  const [renameDialogOpen, setRenameDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   return (
     <>
@@ -91,32 +97,34 @@ function OptionsDialog({ onClose, open }) {
               Rename
             </Button>
             {base !== path && (
-              <>
-                <Button onClick={() => {
-                  setFloat({
-                    type: 'copy',
-                    path
-                  })
-                  onClose()
-                }}>
-                  Copy
-                </Button>
-                <Button onClick={() => {
-                  setFloat({
-                    type: 'cut',
-                    path
-                  })
-                  onClose()
-                }}>
-                  Cut
-                </Button>
-                <Button onClick={() => {
-                  setDeleteDialogOpen(true)
-                  onClose()
-                }}>
-                  Delete
-                </Button>
-              </>
+              <Button onClick={() => {
+                setFloat({
+                  type: 'copy',
+                  path
+                })
+                onClose()
+              }}>
+                Copy
+              </Button>
+            )}
+            {base !== path && (
+              <Button onClick={() => {
+                setFloat({
+                  type: 'cut',
+                  path
+                })
+                onClose()
+              }}>
+                Cut
+              </Button>
+            )}
+            {base !== path && (
+              <Button onClick={() => {
+                setDeleteDialogOpen(true)
+                onClose()
+              }}>
+                Delete
+              </Button>
             )}
             {float ? (
               <>
@@ -131,9 +139,14 @@ function OptionsDialog({ onClose, open }) {
 
                     await loadChildren()
                     setFloat(null)
-                    onClose()
                   } catch (error) {
-                    console.error(error)
+                    setSnackbarOpen(true)
+                    setSnackbarMessage(error?.code || error?.message)
+                    setSnackbarAlertSeverity('error')
+                  } finally {
+                    if (onClose) {
+                      onClose()
+                    }
                   }
                 }}>
                   Paste
@@ -176,6 +189,11 @@ function FolderNewDialog({ onClose, open }) {
     open: folderOpen,
     loadChildren
   } = useContext(FolderContext)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
 
   const handleFolderNew = useCallback(async (event) => {
     event.preventDefault()
@@ -189,12 +207,14 @@ function FolderNewDialog({ onClose, open }) {
       if (folderOpen) {
         loadChildren()
       }
-
+    } catch (error) {
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
+    } finally {
       if (onClose) {
         onClose()
       }
-    } catch (error) {
-      console.error(error)
     }
   }, [path, folderOpen])
 
@@ -238,6 +258,11 @@ function FileNewDialog({ onClose, open }) {
     open: folderOpen,
     loadChildren
   } = useContext(FolderContext)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
 
   const handleFileNew = useCallback(async (event) => {
     event.preventDefault()
@@ -251,12 +276,14 @@ function FileNewDialog({ onClose, open }) {
       if (folderOpen) {
         loadChildren()
       }
-
+    } catch (error) {
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
+    } finally {
       if (onClose) {
         onClose()
       }
-    } catch (error) {
-      console.error(error)
     }
   }, [path, folderOpen])
 
@@ -296,6 +323,11 @@ function FileNewDialog({ onClose, open }) {
 
 function RenameDialog({ onClose, open }) {
   const { path, setPath } = useContext(FolderContext)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
   const { base, setBase } = useFileManager()
 
   const handleRename = useCallback(async (event) => {
@@ -312,12 +344,14 @@ function RenameDialog({ onClose, open }) {
       }
 
       setPath(newPath)
-
+    } catch (error) {
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
+    } finally {
       if (onClose) {
         onClose()
       }
-    } catch (error) {
-      console.error(error)
     }
   }, [path, base])
 
@@ -358,6 +392,11 @@ function RenameDialog({ onClose, open }) {
 
 function DeleteDialog({ onClose, open }) {
   const { path } = useContext(FolderContext)
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
   const { deletedItemParent, setDeletedItemParent } = useFileManager()
 
   const handleDelete = useCallback(async (event) => {
@@ -367,7 +406,9 @@ function DeleteDialog({ onClose, open }) {
       await fs.rm(path)
       setDeletedItemParent(getParentPath(path))
     } catch (error) {
-      console.error(error)
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
     }
   }, [path, deletedItemParent])
 
@@ -410,15 +451,26 @@ export default function Folder({
   const [open, setOpen] = useState(false)
   const [optionsDialogOpen, setOptionsDialogOpen] = useState(false)
   const [children, setChildren] = useState([])
-  const { cutItemParent, setCutItemParent } = useFileManager()
-  const { deletedItemParent, setDeletedItemParent } = useFileManager()
+  const {
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarAlertSeverity
+  } = useApp()
+  const {
+    cutItemParent,
+    setCutItemParent,
+    deletedItemParent,
+    setDeletedItemParent
+  } = useFileManager()
 
   const loadChildren = useCallback(async () => {
     try {
       const data = await fs.readdir(path)
       setChildren(data)
     } catch (error) {
-      console.error(error)
+      setSnackbarOpen(true)
+      setSnackbarMessage(error?.code || error?.message)
+      setSnackbarAlertSeverity('error')
     }
   }, [path])
 
