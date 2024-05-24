@@ -24,7 +24,7 @@ export default function EditorView({ path }) {
       try {
         const data = await fs.readFile(path)
         setValue(data)
-        editorRef.current.innerText = data
+        editorRef.current.value = data
       } catch (error) {
         setSnackbarOpen(true)
         setSnackbarMessage(error?.code || error.message)
@@ -45,27 +45,30 @@ export default function EditorView({ path }) {
     }
   }
 
-  useEffect(() => {
+  function handleInput(event) {
+    setValue(event.target.value)
     clearTimeout(saveTimeout.current)
     saveTimeout.current = setTimeout(save, saveDelay)
-  }, [value])
+  }
 
   return (
-    <div
-      contentEditable
-      onInput={(event) => setValue(event.target.innerText)}
+    <textarea
+      onInput={handleInput}
       ref={editorRef}
       style={{
-        backgroundColor: '121212',
+        backgroundColor: '#121212',
         boxSizing: 'border-box',
+        border: 0,
         color: '#F6F6F6',
         fontFamily: 'monospace',
         height: '100%',
+        margin: 0,
         outline: 'none',
         padding: '1rem',
+        resize: 'none',
         width: '100%'
       }}
     >
-    </div>
+    </textarea>
   )
 }

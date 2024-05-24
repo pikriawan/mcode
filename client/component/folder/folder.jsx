@@ -463,7 +463,7 @@ export default function Folder({
     setDeletedItemParent
   } = useFileManager()
 
-  const loadChildren = useCallback(async () => {
+  async function loadChildren() {
     try {
       const data = await fs.readdir(path)
       setChildren(data)
@@ -472,7 +472,7 @@ export default function Folder({
       setSnackbarMessage(error?.code || error?.message)
       setSnackbarAlertSeverity('error')
     }
-  }, [path])
+  }
 
   useEffect(() => {
     if (cutItemParent === path) {

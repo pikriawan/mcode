@@ -33,13 +33,20 @@ export default function Editor() {
             key={path}
             label={
               <Box sx={{
+                alignItems: 'center',
                 display: 'flex',
                 gap: '1rem'
               }}>
                 <Typography>
                   {getName(path)}
                 </Typography>
-                <CloseIcon onClick={() => setOpenFiles((prev) => prev.filter((filePath) => filePath !== path))} />
+                <CloseIcon
+                  onClick={() => setOpenFiles((prev) => prev.filter((filePath) => filePath !== path))}
+                  sx={{
+                    height: '0.75rem',
+                    width: '0.75rem'
+                  }}
+                />
               </Box>
             }
             sx={{
@@ -58,6 +65,8 @@ export default function Editor() {
               ? 'block'
               : 'none',
             height: '100%',
+            // temp_overflow
+            overflow: 'hidden',
             width: '100%'
           }}>
             <EditorView path={path} />
