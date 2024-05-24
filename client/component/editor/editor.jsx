@@ -58,7 +58,6 @@ export default function Editor() {
               ? 'block'
               : 'none',
             height: '100%',
-            overflow: 'hidden',
             width: '100%'
           }}>
             <EditorView path={path} />
