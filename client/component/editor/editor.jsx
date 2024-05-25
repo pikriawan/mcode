@@ -24,6 +24,11 @@ export default function Editor() {
       width: '100%'
     }}>
       <Tabs
+        TabIndicatorProps={{
+          style: {
+            display: 'none'
+          }
+        }}
         onChange={handleTabChange}
         value={currentTabIndex}
         variant='scrollable'
