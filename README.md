@@ -1,19 +1,20 @@
-A code editor for mobile.
+A simple, browser-based code editor for mobile
 
 Usage:
 
-dev
-```bash
+## Installation
+
+```
+git clone https://github.com/pikriawan/mcode
+cd mcode
+npm install
 npm run dev
 ```
 
-build
+## Faster with production mode
+
 ```bash
 npm run build
-```
-
-production
-```
 npm run prod
 ```
 
